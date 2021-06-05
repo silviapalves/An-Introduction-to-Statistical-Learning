@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 import sklearn.metrics as metrics
 import statsmodels.api as sm
+from statsmodels.stats.api import anova_lm
+from statsmodels.formula.api import ols
 from scipy import stats
 import numpy as np
 from statsmodels.stats.outliers_influence import OLSInfluence
@@ -11,7 +13,7 @@ boston = pd.read_csv(r"C:\Users\spalves\Desktop\Silvia\Pessoal\ITAU\ALL+CSV+FILE
 boston.dropna() 
 
 # ----------------------------------------------------------------------------
-# Linear Regression with Stat
+print("Linear Regression with Stat")
 
 x_lstat = boston.lstat.values.reshape(-1, 1)
 y = boston.medv
@@ -37,15 +39,15 @@ plt.plot(boston.lstat, est2.fittedvalues, 'r')
 plt.grid(True)
 plt.show()
 
-influence = est2.get_influence()
-standardized_residuals = influence.resid_studentized_internal
-leverage = influence.hat_matrix_diag
-max_leverage = np.argmax(leverage)+1
+# influence = est2.get_influence()
+# standardized_residuals = influence.resid_studentized_internal
+# leverage = influence.hat_matrix_diag
+# max_leverage = np.argmax(leverage)+1
 
-plt.scatter(est2.fittedvalues,standardized_residuals)
+# plt.scatter(est2.fittedvalues,standardized_residuals)
 
 # ----------------------------------------------------------------------------
-# Multiple Linear Regression with Stat and Age
+print("Multiple Linear Regression with Stat and Age")
 
 x_lstat_age = boston[['lstat', 'age']]
 
@@ -55,7 +57,7 @@ est4 = est3.fit()
 print(est4.summary())
 
 # ----------------------------------------------------------------------------
-# Multiple Linear Regression with all predictors
+print("Multiple Linear Regression with all predictors")
 
 x_all = boston[['crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'age', 'dis',
        'rad', 'tax', 'ptratio', 'black', 'lstat']]
@@ -66,7 +68,7 @@ est6 = est5.fit()
 print(est6.summary())
 
 # ----------------------------------------------------------------------------
-# Multiple Linear Regression with all predictors but age
+print("Multiple Linear Regression with all predictors but age")
 
 x_all_age = boston[['crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'dis',
        'rad', 'tax', 'ptratio', 'black', 'lstat']]
@@ -77,7 +79,7 @@ est8 = est7.fit()
 print(est8.summary())
 
 # ----------------------------------------------------------------------------
-# Multiple Linear Regression with all predictors but age, indus
+print("Multiple Linear Regression with all predictors but age, indus")
 
 x_all_age_indus = boston[['crim', 'zn', 'chas', 'nox', 'rm', 'dis',
        'rad', 'tax', 'ptratio', 'black', 'lstat']]
@@ -93,3 +95,30 @@ leverage = influence.hat_matrix_diag
 max_leverage = np.argmax(leverage)+1
 
 plt.scatter(est10.fittedvalues,standardized_residuals)
+
+
+# ----------------------------------------------------------------------------
+print("Including interation term")
+
+model = ols('medv ~ lstat + age + lstat:age', data=boston).fit()
+print(sm.stats.anova_lm(model, typ=2))
+print(model.summary())
+
+# ----------------------------------------------------------------------------
+print("Non linear transformation of lstat predictor")
+
+model1 = ols('medv ~ lstat +I(lstat**2)', data=boston).fit()
+print(model1.summary())
+table = anova_lm(est2,model1)
+print(table)
+
+influence = model1.get_influence()
+standardized_residuals = influence.resid_studentized_internal
+plt.figure()
+plt.scatter(model1.fittedvalues,standardized_residuals)
+
+plt.figure()
+plt.scatter(x_lstat, y)
+plt.plot(boston.lstat, model1.fittedvalues, '.r')
+plt.grid(True)
+plt.show()
