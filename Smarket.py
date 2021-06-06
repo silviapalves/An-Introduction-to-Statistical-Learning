@@ -100,8 +100,23 @@ print(classification_report(y_test, pred, digits=3))
 probs_positive_class = model.predict_proba(X_test)[:, 1]
 # say default is the positive class and we want to make few false positives
 prediction = probs_positive_class > 0.9
-print("Number of downs with 90% of trheshould (posterior probability):")
+print("Number of downs with 90% of trheshould (posterior probability) - we wish to be 90% certain to go down:")
 print(np.sum(prediction))
+
+
+print("\n----------------------------------------------------------------")
+print("\nQuadratic Discriminant Analysis QDA\n")
+qda = QuadraticDiscriminantAnalysis()
+model2 = qda.fit(X_train, y_train)
+print("Prior probability to going down and up:")
+print(model2.priors_)
+print("Average of each predictor used as estimate of mik (Lines: Down, UP; Columns: Lag1, Lag2):")
+print(model2.means_)
+
+pred2=model2.predict(X_test)
+print(np.unique(pred2, return_counts=True))
+print(confusion_matrix(pred2, y_test))
+print(classification_report(y_test, pred2, digits=3))
 
 
                              
