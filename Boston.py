@@ -122,3 +122,11 @@ plt.scatter(x_lstat, y)
 plt.plot(boston.lstat, model1.fittedvalues, '.r')
 plt.grid(True)
 plt.show()
+
+print("---------------------------------------------------------------------")
+print("\nCarseats data + Qualitative predictors\n")
+
+carseats = pd.read_csv(r"C:\Users\spalves\Desktop\Silvia\Pessoal\ITAU\ALL+CSV+FILES\ALL CSV FILES\Carseats.csv")
+carseats.dropna()
+
+print(sm.OLS.from_formula('Sales ~ Income:Advertising+Price:Age + ' + "+".join(carseats.columns.difference(['Sales'])), carseats).fit().summary())
