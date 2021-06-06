@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.metrics import confusion_matrix, classification_report, precision_score
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
 import matplotlib.pyplot as plt
+from sklearn import neighbors
 
 smarket = pd.read_csv(r"C:\Users\spalves\Desktop\Silvia\Pessoal\ITAU\ALL+CSV+FILES\ALL CSV FILES\Smarket.csv", index_col=0, parse_dates=True)
 smarket.dropna() 
@@ -118,7 +119,34 @@ print(np.unique(pred2, return_counts=True))
 print(confusion_matrix(pred2, y_test))
 print(classification_report(y_test, pred2, digits=3))
 
+print("\n----------------------------------------------------------------")
+print("\nK-Nearest Neighbors KNN\n")
 
+
+print("\nK = 1\n")
+knn = neighbors.KNeighborsClassifier(n_neighbors = 1)
+pred = knn.fit(X_train, y_train).predict(X_test)
+print(confusion_matrix(y_test, pred).T)
+print(classification_report(y_test, pred, digits=3))
+
+print("\nK = 3\n")
+knn = neighbors.KNeighborsClassifier(n_neighbors=3)
+pred = knn.fit(X_train, y_train).predict(X_test)
+
+print(confusion_matrix(y_test, pred).T)
+print(classification_report(y_test, pred, digits=3))
+
+print("\nLoop for K\n")
+
+for number in range(10):
+    print("\nK = " + str(number+1) + "\n")
+    knn = neighbors.KNeighborsClassifier(n_neighbors=number+1)
+    model = knn.fit(X_train, y_train)
+    pred = knn.fit(X_train, y_train).predict(X_test)
+    
+    print(confusion_matrix(y_test, pred).T)
+    print(classification_report(y_test, pred, digits=3))
+    
                              
                             
 
