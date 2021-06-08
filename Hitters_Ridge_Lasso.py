@@ -6,7 +6,9 @@ from sklearn.preprocessing import scale
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge, RidgeCV, Lasso, LassoCV
 from sklearn.metrics import mean_squared_error
+import random
 
+random.seed(0)
 base = pd.read_csv(r"C:\Users\spalves\Desktop\Silvia\Pessoal\ITAU\ALL+CSV+FILES\ALL CSV FILES\Hitters.csv")
 base = base.dropna()
 
@@ -27,7 +29,7 @@ print("\n--------Ridge Regression--------\n")
 
 alphas = 10**np.linspace(10,-2,100)*0.5
 
-ridge = Ridge(normalize = True)
+ridge = Ridge(normalize = True, fit_intercept = True)
 coefs = []
 
 for a in alphas:
@@ -55,7 +57,9 @@ ridge2.fit(X_train, y_train)
 pred2 = ridge2.predict(X_test)
 # Print coefficients           
 print(pd.Series(ridge2.coef_, index = X.columns)) 
+print("Intercept: " + str(ridge2.intercept_))
 # Calculate the test MSE
+print("\ntest MSE: ")
 print(mean_squared_error(y_test, pred2))  
 
 print("\nAlpha = 10^10\n")       
@@ -68,6 +72,7 @@ pred3 = ridge3.predict(X_test)
 # Print coefficients      
 print(pd.Series(ridge3.coef_, index = X.columns)) 
 # Calculate the test MSE 
+print("\ntest MSE: ")
 print(mean_squared_error(y_test, pred3))     
 
 # This big penalty shrinks the coefficients to a very large degree, 
@@ -84,6 +89,7 @@ pred = ridge2.predict(X_test)
 # Print coefficients         
 print(pd.Series(ridge2.coef_, index = X.columns)) 
 # Calculate the test MSE
+print("\ntest MSE: ")
 print(mean_squared_error(y_test, pred))  
 
 ridgecv = RidgeCV(alphas = alphas, scoring = 'neg_mean_squared_error', normalize = True)
@@ -100,6 +106,7 @@ print("\nCoefficients using the full data and alpha by CV: ")
 
 ridge4.fit(X, y)
 print(pd.Series(ridge4.coef_, index = X.columns))
+print("Intercept: " + str(ridge4.intercept_))
 #%%
 print("\n--------Lasso Regression--------\n")
 
@@ -116,9 +123,11 @@ coefs = []
 
 for a in alphas:
     lasso.set_params(alpha=a)
-    lasso.fit(scale(X_train), y_train)
+    lasso.fit(X_train, y_train)
     coefs.append(lasso.coef_)
-    
+
+
+ax = plt.figure()    
 ax = plt.gca()
 ax.plot(alphas*2, coefs)
 ax.set_xscale('log')
@@ -139,9 +148,14 @@ print("\nValue of alpha that results in the smallest cross-validation error: "  
 print("\nMSE associated with this value of alpha is: " + 
       str(mean_squared_error(y, lasso.predict(X))))
 
+# However, the lasso has a substantial advantage over ridge regression in 
+# that the resulting coefficient estimates are sparse. Here we see that 13 
+# of the 19 coefficient estimates are exactly zero:
+
 print("\nCoefficients using the full data and alpha by CV: ")
 # Some of the coefficients are now reduced to exactly zero.
 print(pd.Series(lasso.coef_, index=X.columns))
+print("Intercept: " + str(lasso.intercept_))
 
 
 
