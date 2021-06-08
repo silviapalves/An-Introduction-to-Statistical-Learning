@@ -33,20 +33,19 @@ for i in range(1,11):
     print(classification_report(test_default["default"], 
                             predictions_nominal, 
                             digits = 3))
-
     print()
     
-print("\n-----------k-Fold Cross-Validation---------------\n")
+# print("\n-----------k-Fold Cross-Validation---------------\n")
     
 
-train_default = default.sample(8000, random_state = i)
-test_default = default[~default.isin(train_default)].dropna(how = 'all')
-model = LogisticRegression()
-# result = model.fit()
+# train_default = default.sample(8000, random_state = i)
+# test_default = default[~default.isin(train_default)].dropna(how = 'all')
+# model = LogisticRegression()
+# # result = model.fit()
 
 
-crossvalidation = KFold(n_splits=5, random_state=1, shuffle=True)
+# crossvalidation = KFold(n_splits=5, random_state=1, shuffle=True)
 
-scores = cross_val_score(model, train_default.balance.values.reshape(-1,1), train_default.default.values.reshape(-1,1), cv=crossvalidation)
+# scores = cross_val_score(model, train_default.balance.values.reshape(-1,1), train_default.default.values.reshape(-1,1), cv=crossvalidation)
 
 # print("Degree-"+str(i)+" polynomial MSE: " + str(np.mean(np.abs(scores))) + ", STD: " + str(np.std(scores)))
