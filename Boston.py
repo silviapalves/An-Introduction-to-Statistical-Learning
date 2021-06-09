@@ -8,6 +8,7 @@ from statsmodels.formula.api import ols
 from scipy import stats
 import numpy as np
 from statsmodels.stats.outliers_influence import OLSInfluence
+from sklearn.metrics import confusion_matrix, mean_squared_error
 
 boston = pd.read_csv(r"C:\Users\spalves\Desktop\Silvia\Pessoal\ITAU\ALL+CSV+FILES\ALL CSV FILES\Boston.csv")
 boston.dropna() 
@@ -46,7 +47,7 @@ plt.show()
 
 # plt.scatter(est2.fittedvalues,standardized_residuals)
 
-# ----------------------------------------------------------------------------
+print("----------------------------------------------------------------------------")
 print("Multiple Linear Regression with Stat and Age")
 
 x_lstat_age = boston[['lstat', 'age']]
@@ -56,7 +57,12 @@ est3 = sm.OLS(y, X4)
 est4 = est3.fit()
 print(est4.summary())
 
-# ----------------------------------------------------------------------------
+y_pred = est4.predict(X4)
+print(y_pred)
+print("\nTest MSE:\n")
+print(mean_squared_error(y, y_pred))
+
+print("----------------------------------------------------------------------------")
 print("Multiple Linear Regression with all predictors")
 
 x_all = boston[['crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'age', 'dis',
@@ -67,7 +73,12 @@ est5 = sm.OLS(y, X5)
 est6 = est5.fit()
 print(est6.summary())
 
-# ----------------------------------------------------------------------------
+y_pred = est6.predict(X5)
+print(y_pred)
+print("\nTest MSE:\n")
+print(mean_squared_error(y, y_pred))
+
+print("----------------------------------------------------------------------------")
 print("Multiple Linear Regression with all predictors but age")
 
 x_all_age = boston[['crim', 'zn', 'indus', 'chas', 'nox', 'rm', 'dis',
@@ -78,7 +89,7 @@ est7 = sm.OLS(y, X6)
 est8 = est7.fit()
 print(est8.summary())
 
-# ----------------------------------------------------------------------------
+print("----------------------------------------------------------------------------")
 print("Multiple Linear Regression with all predictors but age, indus")
 
 x_all_age_indus = boston[['crim', 'zn', 'chas', 'nox', 'rm', 'dis',
@@ -97,14 +108,14 @@ max_leverage = np.argmax(leverage)+1
 plt.scatter(est10.fittedvalues,standardized_residuals)
 
 
-# ----------------------------------------------------------------------------
+print("----------------------------------------------------------------------------")
 print("Including interation term")
 
 model = ols('medv ~ lstat + age + lstat:age', data=boston).fit()
 print(sm.stats.anova_lm(model, typ=2))
 print(model.summary())
 
-# ----------------------------------------------------------------------------
+print("----------------------------------------------------------------------------")
 print("Non linear transformation of lstat predictor")
 
 model1 = ols('medv ~ lstat +I(lstat**2)', data=boston).fit()
