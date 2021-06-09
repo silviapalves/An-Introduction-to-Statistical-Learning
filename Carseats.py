@@ -4,9 +4,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import graphviz
 import matplotlib.pyplot as plt
-from IPython.display import display
-import os
-os.environ["PATH"] += os.pathsep + 'D:/Program Files (x86)/Graphviz2.38/bin/'
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier, export_graphviz
