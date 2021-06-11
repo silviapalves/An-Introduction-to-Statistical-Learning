@@ -5,6 +5,14 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import auc
+from sklearn.metrics import roc_curve
+
+
+print("----------------------------------------------------------------------")
+print("                          Linear Kernel                               ")
+print("----------------------------------------------------------------------")
 
 # We'll define a function to draw a nice plot of an SVM
 def plot_svc(svc, X, y, c, h=0.02, pad=0.25):
@@ -118,5 +126,136 @@ svc4 = SVC(C=C, kernel='linear')
 svc4.fit(X_test, y_test)
 plot_svc(svc4, X_test, y_test,C)
 
-
 # C menor aumenta a margem o faz o test performar melhor
+
+print("----------------------------------------------------------------------")
+print("                          Polinomial Kernel                           ")
+print("----------------------------------------------------------------------")
+
+# for polinomial:specify a degree for the polynomial kernel (d)
+# for radial: specify a value of  γ  for the radial basis kernel.
+   
+np.random.seed(8)
+X = np.random.randn(200,2)
+X[:100] = X[:100] +2
+X[101:150] = X[101:150] -2
+y = np.concatenate([np.repeat(-1, 150), np.repeat(1,50)])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.5, random_state=2)
+
+
+plt.figure()
+plt.title("Data plot")
+plt.scatter(X[:,0], X[:,1], s=70, c=y, cmap=mpl.cm.Paired)
+plt.xlabel('X1')
+plt.ylabel('X2')
+
+print("\n-------- Gama = 1, C = 1 --------\n")
+
+C = 1
+svm = SVC(C=C, kernel='rbf', gamma=1)
+svm.fit(X_train, y_train)
+plot_svc(svm, X_test, y_test,C)
+
+print("\n-------- Gama = 1, C = 100 --------\n")
+
+# Increasing C parameter, allowing more flexibility
+C=100
+svm2 = SVC(C=C, kernel='rbf', gamma=1.0)
+svm2.fit(X_train, y_train)
+plot_svc(svm2, X_test, y_test,C)
+
+print("\n-------- Cross Validation for X and gama --------\n")
+
+tuned_parameters = [{'C': [0.01, 0.1, 1, 10, 100],
+                     'gamma': [0.5, 1,2,3,4]}]
+clf = GridSearchCV(SVC(kernel='rbf'), tuned_parameters, cv=10, scoring='accuracy')
+clf.fit(X_train, y_train)
+
+print("The best C resulted from the Cross Validation is: ")
+print(clf.best_params_)
+
+C= clf.best_params_["C"]
+plot_svc(clf.best_estimator_, X_test, y_test, C)
+print(confusion_matrix(y_test, clf.best_estimator_.predict(X_test)))
+print(clf.best_estimator_.score(X_test, y_test))
+
+print("\n-------- ROC Curves --------\n")
+
+# ROC Curve: false positive rate versus true positive rate
+
+# More constrained model
+
+C=1
+svm3 = SVC(C=C, kernel='rbf', gamma=1)
+svm3.fit(X_train, y_train)
+
+# More flexible model
+svm4 = SVC(C=C, kernel='rbf', gamma=50)
+svm4.fit(X_train, y_train)
+
+# tem como se obter o valor fittado de cada input (aquele que determina a distancia do plano)
+# e que se for positivo mostra que esta de um lado e negativo de outro
+
+# if the fitted value exceeds zero then the observation is assigned to one class, 
+# and if it is less than zero than it is assigned to the other.
+
+# For training data
+
+y_train_score3 = svm3.decision_function(X_train)
+y_train_score4 = svm4.decision_function(X_train)
+
+false_pos_rate3, true_pos_rate3, _ = roc_curve(y_train, y_train_score3)
+roc_auc3 = auc(false_pos_rate3, true_pos_rate3)
+
+false_pos_rate4, true_pos_rate4, _ = roc_curve(y_train, y_train_score4)
+roc_auc4 = auc(false_pos_rate4, true_pos_rate4)
+
+fig, (ax1,ax2) = plt.subplots(1, 2, figsize=(12,5))
+ax1.plot(false_pos_rate3, true_pos_rate3, label='SVM $\gamma = 1$ ROC curve (area = %0.2f)' % roc_auc3, color='b')
+ax1.plot(false_pos_rate4, true_pos_rate4, label='SVM $\gamma = 50$ ROC curve (area = %0.2f)' % roc_auc4, color='r')
+ax1.set_title('Training Data')
+
+# For test data
+
+y_test_score3 = svm3.decision_function(X_test)
+y_test_score4 = svm4.decision_function(X_test)
+
+false_pos_rate3, true_pos_rate3, _ = roc_curve(y_test, y_test_score3)
+roc_auc3 = auc(false_pos_rate3, true_pos_rate3)
+
+false_pos_rate4, true_pos_rate4, _ = roc_curve(y_test, y_test_score4)
+roc_auc4 = auc(false_pos_rate4, true_pos_rate4)
+
+ax2.plot(false_pos_rate3, true_pos_rate3, label='SVM $\gamma = 1$ ROC curve (area = %0.2f)' % roc_auc3, color='b')
+ax2.plot(false_pos_rate4, true_pos_rate4, label='SVM $\gamma = 50$ ROC curve (area = %0.2f)' % roc_auc4, color='r')
+ax2.set_title('Test Data')
+
+for ax in fig.axes:
+    ax.plot([0, 1], [0, 1], 'k--')
+    ax.set_xlim([-0.05, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('False Positive Rate')
+    ax.set_ylabel('True Positive Rate')
+    ax.legend(loc="lower right")
+    
+# quanto mais acima e a esquerda melhor
+
+print("----------------------------------------------------------------------")
+print("                   Radial Kernel with 3 classes                       ")
+print("----------------------------------------------------------------------")
+
+np.random.seed(8)
+XX = np.vstack([X, np.random.randn(50,2)])
+yy = np.hstack([y, np.repeat(0,50)])
+XX[yy ==0] = XX[yy == 0] +4
+
+plt.figure()
+plt.scatter(XX[:,0], XX[:,1], s=70, c=yy, cmap=plt.cm.prism)
+plt.xlabel('XX1')
+plt.ylabel('XX2')
+C=1
+svm5 = SVC(C=C, kernel='rbf')
+svm5.fit(XX, yy)
+plot_svc(svm5, XX, yy, C)
+
