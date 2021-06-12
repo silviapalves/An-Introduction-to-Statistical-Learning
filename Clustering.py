@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from scipy.cluster.hierarchy import linkage
+from scipy.cluster.hierarchy import dendrogram
+from scipy.cluster.hierarchy import cut_tree
 
 
 print("----------------------------------------------------------------------")
@@ -66,4 +69,32 @@ print(km_out_single_run.inertia_)
 km_out_single_run = KMeans(n_clusters = 3, n_init = 50, random_state = 123).fit(X)
 
 print("n_init = 50: ")
-print(km_out_single_run.inertia_)
+
+print("----------------------------------------------------------------------")
+print("                      Hierarquical Clustering                         ")
+print("----------------------------------------------------------------------")
+
+hc_complete = linkage(X, "complete")
+hc_average = linkage(X, "average")
+hc_single = linkage(X, "single")
+
+# calculate full dendrogram
+plt.figure(figsize=(15, 8))
+plt.title('Hierarchical Clustering Dendrogram')
+plt.xlabel('sample index')
+plt.ylabel('distance')
+dendrogram(
+    hc_complete,
+    leaf_rotation=90.,  # rotates the x axis labels
+    leaf_font_size=8.,  # font size for the x axis labels
+)
+plt.show()
+
+print("Cluster labels in a given cut Complete linkage")
+print(cut_tree(hc_complete, n_clusters = 2).T) # Printing transpose just for space
+
+print("Cluster labels in a given cut Average linkage")
+print(cut_tree(hc_average, n_clusters = 2).T) # Printing transpose just for space
+
+print("Cluster labels in a given cut Single linkage")
+print(cut_tree(hc_single, n_clusters = 2).T) # Printing transpose just for space
